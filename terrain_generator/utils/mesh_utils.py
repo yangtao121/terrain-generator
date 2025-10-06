@@ -23,7 +23,12 @@ def merge_meshes(
     meshes: List[trimesh.Trimesh], minimal_triangles: bool = False, engine: str = "blender"
 ) -> trimesh.Trimesh:
     if minimal_triangles:
-        mesh = trimesh.boolean.union(meshes, engine=engine)
+        try:
+            mesh = trimesh.boolean.union(meshes, engine=engine)
+        except Exception as e:
+            print(f"Warning: Failed to use {engine} engine for boolean union: {e}")
+            print("Falling back to simple mesh concatenation.")
+            mesh = trimesh.util.concatenate(meshes)
     else:
         mesh = trimesh.util.concatenate(meshes)
     return mesh

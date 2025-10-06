@@ -23,6 +23,22 @@ CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "__cache__"
 # CACHE_DIR =
 # ENGINE = "scad"
 
+def safe_boolean_operation(operation, meshes, engine=None):
+    """Safely perform boolean operations with fallback."""
+    if engine is None:
+        engine = ENGINE
+    try:
+        return operation(meshes, engine=engine)
+    except Exception as e:
+        print(f"Warning: Boolean operation failed with {engine} engine: {e}")
+        print("Falling back to simple mesh concatenation.")
+        if hasattr(operation, '__name__') and 'difference' in operation.__name__:
+            # For difference operations, just return the first mesh
+            return meshes[0] if meshes else trimesh.Trimesh()
+        else:
+            # For union/intersection operations, concatenate meshes
+            return trimesh.util.concatenate(meshes) if meshes else trimesh.Trimesh()
+
 
 class NpEncoder(json.JSONEncoder):
     def default(self, obj):

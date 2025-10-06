@@ -20,6 +20,7 @@ from ...utils import (
     get_height_array_of_mesh,
     ENGINE,
 )
+from ...utils.utils import safe_boolean_operation
 
 
 def create_floor(cfg: MeshPartsCfg, **kwargs):
@@ -181,7 +182,7 @@ def create_wall_mesh(cfg: WallPartsCfg, **kwargs):
     mesh = merge_meshes(meshes, cfg.minimal_triangles)
     if cfg.create_door:
         door = create_door(cfg, cfg.door_direction)
-        mesh = trimesh.boolean.difference([mesh, door], engine=ENGINE)
+        mesh = safe_boolean_operation(trimesh.boolean.difference, [mesh, door])
     return mesh
 
 
